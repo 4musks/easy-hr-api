@@ -25,6 +25,11 @@ const UsersSchema = new Schema(
       type: String,
       enum: getUserRoles(),
     },
+    tenant: {
+      type: Schema.Types.ObjectId,
+      ref: "Tenants",
+      default: null,
+    },
   },
   { timestamps: true }
 );

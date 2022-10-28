@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const UsersModel = require("../../models/Users");
+const TenantsModel = require("../../models/Tenants");
 const { UserRoles } = require("../../constants/UserRoles");
 const { createSalt, hashPassword, encodeJWT } = require("../../utils/jwt");
 const { validateToken } = require("../../utils/common");
@@ -12,6 +13,23 @@ const logger = require("../../utils/logger");
 router.post("/signup", async (req, res) => {
   try {
     const { firstName, lastName, email, password, confirmPassword } = req.body;
+
+    const subdomain = req.headers["x-subdomain"];
+
+    if (!subdomain) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid params." });
+    }
+
+    const tenant = await TenantsModel.findOne({ subdomain });
+
+    if (!tenant) {
+      return res.status(400).json({
+        success: false,
+        message: "Tenant does not exist.",
+      });
+    }
 
     if (!firstName) {
       return res
@@ -66,6 +84,7 @@ router.post("/signup", async (req, res) => {
       email,
       password: hashedPassword,
       role: UserRoles.MEMBER,
+      tenant: tenant._id,
     }).save();
 
     const token = encodeJWT({ userId: newUser._id });

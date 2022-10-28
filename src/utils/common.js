@@ -1,11 +1,27 @@
+const TenantsModel = require("../models/Tenants");
 const UsersModel = require("../models/Users");
 const { decodeJWT } = require("./jwt");
 
 const validateToken = async (headers) => {
   const token = headers["x-access-token"];
+  const subdomain = headers["x-subdomain"];
 
   if (!token) {
     return { status: 401, error: true, message: "Invalid Request." };
+  }
+
+  if (!subdomain) {
+    return { status: 401, error: true, message: "Invalid Request." };
+  }
+
+  const tenant = await TenantsModel.findOne({ subdomain });
+
+  if (!tenant) {
+    return {
+      status: 401,
+      error: true,
+      message: "Access denied. Tenant does not exist.",
+    };
   }
 
   const decodedJWT = decodeJWT(token);
@@ -24,7 +40,7 @@ const validateToken = async (headers) => {
     };
   }
 
-  return { error: false, userId: user._id, user };
+  return { error: false, userId: user._id, user, tenantId: tenant._id, tenant };
 };
 
 module.exports = { validateToken };

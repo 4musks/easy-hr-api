@@ -60,9 +60,13 @@ app.use(
   })
 );
 
+const tenantRoutes = require("./src/api/v1/tenant");
 const userRoutes = require("./src/api/v1/users");
+const feedbackRoutes = require("./src/api/v1/feedback");
 
+app.use("/v1/tenant", tenantRoutes);
 app.use("/v1/users", userRoutes);
+app.use("/v1/feedback", feedbackRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "OK" });
