@@ -42,6 +42,8 @@ const whitelist = ["http://localhost:3000"];
 app.use(
   cors({
     origin: (origin, callback) => {
+      logger.debug("origin : ", origin);
+
       // allow requests with no origin
       // (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
