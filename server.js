@@ -74,7 +74,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "OK" });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   try {
     mongoose
       .connect(MONGO_URL)
@@ -86,3 +86,6 @@ app.listen(PORT, () => {
     logger.error("Failed to start server -> error : ", error);
   }
 });
+
+server.keepAliveTimeout = 65000; // Ensure all inactive connections are terminated by the ALB, by setting this a few seconds higher than the ALB idle timeout
+server.headersTimeout = 66000; // Ensure the headersTimeout is set higher than the keepAliveTimeout due to this nodejs regression bug: https://github.com/nodejs/node/issues/27363
