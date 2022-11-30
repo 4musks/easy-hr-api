@@ -31,47 +31,75 @@ const rawBodySaver = (req, res, buf, encoding) => {
   }
 };
 
-app.use(express.json({ verify: rawBodySaver, limit: "50mb" }));
+app.use(express.json({ verify: rawBodySaver, limit: "10mb" }));
 app.use(
-  express.urlencoded({ verify: rawBodySaver, extended: true, limit: "50mb" })
+  express.urlencoded({ verify: rawBodySaver, extended: true, limit: "10mb" })
 );
-app.use(express.raw({ verify: rawBodySaver, type: "*/*", limit: "50mb" }));
+app.use(express.raw({ verify: rawBodySaver, type: "*/*", limit: "10mb" }));
 
-const whitelist = ["http://localhost:3000"];
+app.use(cors());
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      logger.debug("origin : ", origin);
+// const whitelistHosts = ["localhost:3000"];
 
-      // allow requests with no origin
-      // (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       // allow requests with no origin (like mobile apps or curl requests)
+//       if (!origin) return callback(null, true);
 
-      if (whitelist.indexOf(origin) === -1) {
-        return callback(
-          new Error(
-            "The CORS policy for this site does not allow access from the specified Origin."
-          ),
-          false
-        );
-      }
+//       // verify origin
+//       const { host, protocol } = new URL(origin);
 
-      return callback(null, true);
-    },
-  })
-);
+//       // if (!protocol.includes("https")) {
+//       //   return callback(
+//       //     new Error(
+//       //       "The CORS policy for this site does not allow access from non https hosts."
+//       //     ),
+//       //     false
+//       //   );
+//       // }
+
+//       const [subdomain, hostname, domain] = host.split(".");
+
+//       let actualHost = "";
+
+//       if (hostname.includes("localhost") && !domain) {
+//         // running on local
+//         actualHost = hostname;
+//       } else {
+//         // running on cloud
+//         actualHost = `${hostname}.${domain}`;
+//       }
+
+//       if (whitelistHosts.indexOf(actualHost) === -1) {
+//         return callback(
+//           new Error(
+//             "The CORS policy for this site does not allow access from the specified Origin."
+//           ),
+//           false
+//         );
+//       }
+
+//       return callback(null, true);
+//     },
+//   })
+// );
 
 const tenantRoutes = require("./src/api/v1/tenant");
 const userRoutes = require("./src/api/v1/users");
 const feedbackRoutes = require("./src/api/v1/feedback");
-const employeesRoutes = require("./src/api/v1/employees");
+const statsRoutes = require("./src/api/v1/stats");
+const worklogRoutes = require("./src/api/v1/worklog");
+const companyValuesRoutes = require("./src/api/v1/company-values");
+const recognitionRoutes = require("./src/api/v1/recognition");
 
 app.use("/v1/tenant", tenantRoutes);
 app.use("/v1/users", userRoutes);
 app.use("/v1/feedback", feedbackRoutes);
-app.use("/v1/employees", employeesRoutes);
-
+app.use("/v1/stats", statsRoutes);
+app.use("/v1/worklog", worklogRoutes);
+app.use("/v1/company-values", companyValuesRoutes);
+app.use("/v1/recognition", recognitionRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "OK" });

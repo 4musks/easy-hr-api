@@ -1,16 +1,19 @@
 const mongoose = require("mongoose");
 
-const collection = "Feedback";
+const collection = "Worklog";
 
 const { Schema } = mongoose;
 
-const FeedbackSchema = new Schema(
+const WorklogSchema = new Schema(
   {
-    description: {
-      type: String,
+    serviceDate: {
+      type: Date,
     },
-    isAnonymous: {
-      type: Boolean,
+    hours: {
+      type: Number,
+    },
+    notes: {
+      type: String,
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -31,6 +34,6 @@ const FeedbackSchema = new Schema(
   { timestamps: true }
 );
 
-const Feedback = mongoose.model(collection, FeedbackSchema);
+const Worklog = mongoose.model(collection, WorklogSchema);
 
-module.exports = Feedback;
+module.exports = Worklog;

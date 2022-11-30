@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const collection = "Users";
 
-const { getUserRoles } = require("../constants/UserRoles");
+const { UserRoles, UserStatus } = require("../constants/Users");
 
 const { Schema } = mongoose;
 
@@ -16,14 +16,37 @@ const UsersSchema = new Schema(
     },
     email: {
       type: String,
-      index: true,
+    },
+    dob: {
+      type: Date,
+    },
+    department: {
+      type: String,
+    },
+    designation: {
+      type: String,
+    },
+    joiningDate: {
+      type: Date,
+    },
+    hourlyRate: {
+      type: Number,
     },
     password: {
       type: String,
     },
     role: {
       type: String,
-      enum: getUserRoles(),
+      enum: Object.values(UserRoles),
+    },
+    status: {
+      type: String,
+      enum: Object.values(UserStatus),
+    },
+    manager: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+      default: null,
     },
     tenant: {
       type: Schema.Types.ObjectId,

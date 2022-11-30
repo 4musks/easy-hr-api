@@ -1,26 +1,28 @@
 const mongoose = require("mongoose");
 
-const collection = "Feedback";
+const collection = "Recognition";
 
 const { Schema } = mongoose;
 
-const FeedbackSchema = new Schema(
+const RecognitionSchema = new Schema(
   {
+    fromUser: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+      default: null,
+    },
+    toUser: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+      default: null,
+    },
+    companyValue: {
+      type: Schema.Types.ObjectId,
+      ref: "CompanyValues",
+      default: null,
+    },
     description: {
       type: String,
-    },
-    isAnonymous: {
-      type: Boolean,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "Users",
-      default: null,
-    },
-    manager: {
-      type: Schema.Types.ObjectId,
-      ref: "Users",
-      default: null,
     },
     tenant: {
       type: Schema.Types.ObjectId,
@@ -31,6 +33,6 @@ const FeedbackSchema = new Schema(
   { timestamps: true }
 );
 
-const Feedback = mongoose.model(collection, FeedbackSchema);
+const Recognition = mongoose.model(collection, RecognitionSchema);
 
-module.exports = Feedback;
+module.exports = Recognition;

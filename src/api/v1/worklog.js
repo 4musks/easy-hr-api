@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const FeedbackModel = require("../../models/Feedback");
+const WorklogModel = require("../../models/Worklog");
 const { UserRoles } = require("../../constants/Users");
 const { validateToken } = require("../../utils/common");
 const { INTERNAL_SERVER_ERROR_MESSAGE } = require("../../utils/constants");
@@ -42,13 +42,13 @@ router.get("/", async (req, res) => {
       };
     }
 
-    const feedback = await FeedbackModel.find(filter)
+    const worklog = await WorklogModel.find(filter)
       .populate("user")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json({ success: true, data: feedback });
+    return res.status(200).json({ success: true, data: worklog });
   } catch (error) {
-    logger.error("GET /v1/feedback -> error : ", error);
+    logger.error("GET /v1/worklog -> error : ", error);
     return res
       .status(500)
       .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
@@ -67,23 +67,24 @@ router.post("/", async (req, res) => {
 
     const { userId, tenantId, user } = token;
 
-    const { description, isAnonymous } = req.body;
+    const { serviceDate, hours, notes } = req.body;
 
-    if (!description) {
+    if (!serviceDate) {
       return res
         .status(400)
-        .json({ success: false, message: "Description is required." });
+        .json({ success: false, message: "Service date is required." });
     }
 
-    if (isAnonymous === null || isAnonymous === undefined) {
+    if (!hours) {
       return res
         .status(400)
-        .json({ success: false, message: "Is Anonymous is required." });
+        .json({ success: false, message: "Hours is required." });
     }
 
     const payload = {
-      description,
-      isAnonymous,
+      serviceDate,
+      hours,
+      notes,
       user: userId,
       tenant: tenantId,
     };
@@ -92,13 +93,13 @@ router.post("/", async (req, res) => {
       payload.manager = user.manager;
     }
 
-    await new FeedbackModel(payload).save();
+    await new WorklogModel(payload).save();
 
     return res
       .status(200)
-      .json({ success: true, message: "Feedback created successfully." });
+      .json({ success: true, message: "Worklog created successfully." });
   } catch (error) {
-    logger.error("POST /v1/feedback -> error : ", error);
+    logger.error("POST /v1/worklog -> error : ", error);
     return res
       .status(500)
       .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
