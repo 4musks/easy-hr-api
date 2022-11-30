@@ -357,7 +357,7 @@ router.post("/invite", async (req, res) => {
     }
 
     const {
-      tenant: { _id: tenantId, subdomain },
+      tenant: { _id: tenantId },
     } = token;
 
     const {
@@ -453,7 +453,7 @@ router.post("/invite", async (req, res) => {
 
     await new UsersModel(payload).save();
 
-    const link = `http://${subdomain}.${APP_URL}/signin`;
+    const link = `https://${APP_URL}/signin`;
 
     // Create sendEmail params
     const params = {
