@@ -85,4 +85,84 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.put("/", async (req, res) => {
+  try {
+    const token = await validateToken(req.headers);
+
+    if (token.error) {
+      return res
+        .status(token.status)
+        .json({ success: false, message: token.message });
+    }
+
+    const { id, companyValue, description } = req.body;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID is required." });
+    }
+
+    if (!companyValue) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Company value is required." });
+    }
+
+    if (!description) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Description is required." });
+    }
+
+    await RecognitionModel.findOneAndUpdate(
+      { _id: id },
+      {
+        companyValue,
+        description,
+      }
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Recognition updated successfully." });
+  } catch (error) {
+    logger.error("PUT /v1/recognition -> error : ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+});
+
+router.delete("/", async (req, res) => {
+  try {
+    const token = await validateToken(req.headers);
+
+    if (token.error) {
+      return res
+        .status(token.status)
+        .json({ success: false, message: token.message });
+    }
+
+    const { id } = req.query;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID is required." });
+    }
+
+    await RecognitionModel.findOneAndRemove({ _id: id });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Recognition deleted successfully." });
+  } catch (error) {
+    logger.error("DELETE /v1/recognition -> error : ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+});
+
 module.exports = router;

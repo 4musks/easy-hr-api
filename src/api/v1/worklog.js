@@ -81,6 +81,12 @@ router.post("/", async (req, res) => {
         .json({ success: false, message: "Hours is required." });
     }
 
+    if (!notes) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Notes is required." });
+    }
+
     const payload = {
       serviceDate,
       hours,
@@ -100,6 +106,93 @@ router.post("/", async (req, res) => {
       .json({ success: true, message: "Worklog created successfully." });
   } catch (error) {
     logger.error("POST /v1/worklog -> error : ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+});
+
+router.put("/", async (req, res) => {
+  try {
+    const token = await validateToken(req.headers);
+
+    if (token.error) {
+      return res
+        .status(token.status)
+        .json({ success: false, message: token.message });
+    }
+
+    const { id, serviceDate, hours, notes } = req.body;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID is required." });
+    }
+
+    if (!serviceDate) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Service date is required." });
+    }
+
+    if (!hours) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Hours is required." });
+    }
+
+    if (!notes) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Notes is required." });
+    }
+
+    await WorklogModel.findOneAndUpdate(
+      { _id: id },
+      {
+        serviceDate,
+        hours,
+        notes,
+      }
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Worklog updated successfully." });
+  } catch (error) {
+    logger.error("PUT /v1/worklog -> error : ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+});
+
+router.delete("/", async (req, res) => {
+  try {
+    const token = await validateToken(req.headers);
+
+    if (token.error) {
+      return res
+        .status(token.status)
+        .json({ success: false, message: token.message });
+    }
+
+    const { id } = req.query;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID is required." });
+    }
+
+    await WorklogModel.findOneAndRemove({ _id: id });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Worklog removed successfully." });
+  } catch (error) {
+    logger.error("DELETE /v1/worklog -> error : ", error);
     return res
       .status(500)
       .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });

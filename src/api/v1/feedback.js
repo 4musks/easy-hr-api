@@ -105,4 +105,81 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.put("/", async (req, res) => {
+  try {
+    const token = await validateToken(req.headers);
+
+    if (token.error) {
+      return res
+        .status(token.status)
+        .json({ success: false, message: token.message });
+    }
+
+    const { id, description, isAnonymous } = req.body;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID is required." });
+    }
+
+    if (!description) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Description is required." });
+    }
+
+    if (isAnonymous === null || isAnonymous === undefined) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Is Anonymous is required." });
+    }
+
+    await FeedbackModel.findOneAndUpdate(
+      { _id: id },
+      { description, isAnonymous }
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Feedback updated successfully." });
+  } catch (error) {
+    logger.error("PUT /v1/feedback -> error : ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+});
+
+router.delete("/", async (req, res) => {
+  try {
+    const token = await validateToken(req.headers);
+
+    if (token.error) {
+      return res
+        .status(token.status)
+        .json({ success: false, message: token.message });
+    }
+
+    const { id } = req.query;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID is required." });
+    }
+
+    await FeedbackModel.findOneAndRemove({ _id: id });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Feedback removed successfully." });
+  } catch (error) {
+    logger.error("DELETE /v1/feedback -> error : ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+});
+
 module.exports = router;
